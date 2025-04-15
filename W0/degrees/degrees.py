@@ -93,16 +93,51 @@ def shortest_path(source, target): #source and target are in id string format
     """
     #print(people[source])
     #Kevin Bacon
-    if (source == target):
-        return [(list(people[source]["movies"])[0], source)]
-    
-    initalNode = Node(sourceId, None, neighbors_for_person(sourceId))
+    #Demi Moore
+    #score is None None beacuse source have no parent neither action that took him there
+    initalNode = Node(source, None, None)
     frontier = QueueFrontier()
     frontier.add(initalNode)
+    
+    exploredSet = []
+    finalNode = recursive_search (frontier, target, exploredSet)
 
-    result = [(1, 'a'), (2, 'b'), (3, 'c')]
-    # TODO
-    raise NotImplementedError
+    resultList = []
+    #fill the list there using the final node
+    resultList = recursive_list_filler (finalNode, resultList,source)
+
+    return resultList
+
+def recursive_list_filler (node : Node, resultList, source):
+    if node.state == source:
+        return resultList
+    else:        
+        resultList.append((node.action, node.state))
+        recursive_list_filler (node.parent, resultList, source)
+
+
+def recursive_search(frontier : QueueFrontier, target, exploredSet): 
+    try:
+        node : Node = frontier.remove()
+    except Exception as e: #frontier return an exception if empty
+        return None
+    
+    #if node contain result then return the node
+    if node.state == target:
+        return node
+    else:
+        exploredSet.append(node)
+
+    #if node dont contain goal add it to explored set
+    for movie_id, co_star_id in neighbors_for_person(node.state):
+   
+        newNode = Node(co_star_id, node, movie_id)
+        if newNode not in exploredSet:
+            frontier.add(Node(co_star_id, node, movie_id))
+    
+    recursive_search (frontier, target, exploredSet)
+        
+            
 
 
 def person_id_for_name(name):
@@ -138,7 +173,9 @@ def neighbors_for_person(person_id):
     """
     movie_ids = people[person_id]["movies"]
     neighbors = set()
+    #loop through all the movies this person satrred in
     for movie_id in movie_ids:
+        #loop though all people that played in each movie and ad them all
         for person_id in movies[movie_id]["stars"]:
             neighbors.add((movie_id, person_id))
     return neighbors
