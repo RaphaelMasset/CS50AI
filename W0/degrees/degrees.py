@@ -101,7 +101,8 @@ def shortest_path(source, target): #source and target are in id string format
     
     exploredSet = []
     finalNode = recursive_search (frontier, target, exploredSet)
-
+    if finalNode == None: 
+        return None
     resultList = []
     #fill the list there using the final node
     resultList = recursive_list_filler (finalNode, resultList,source)
@@ -109,18 +110,18 @@ def shortest_path(source, target): #source and target are in id string format
     return resultList
 
 def recursive_list_filler (node : Node, resultList, source):
-    if node.state == source:
+    if node.state == source: 
         return resultList
     else:        
         resultList.append((node.action, node.state))
-        recursive_list_filler (node.parent, resultList, source)
+        return recursive_list_filler (node.parent, resultList, source)
 
 
 def recursive_search(frontier : QueueFrontier, target, exploredSet): 
     try:
         node : Node = frontier.remove()
     except Exception as e: #frontier return an exception if empty
-        return None
+        return None  #node is nonde because of that maybe?
     
     #if node contain result then return the node
     if node.state == target:
@@ -129,16 +130,22 @@ def recursive_search(frontier : QueueFrontier, target, exploredSet):
         exploredSet.append(node)
 
     #if node dont contain goal add it to explored set
-    for movie_id, co_star_id in neighbors_for_person(node.state):
-   
+    for movie_id, co_star_id in neighbors_for_person(node.state): 
+        #error there, the returne list of tuple containe the source... 
+        #ITS BECAUSE this meth return all (move,actor) link to 
+        #take the actorID, gett all his fims, then make a list of all those films and their actor
+        #thus it return the target....
         newNode = Node(co_star_id, node, movie_id)
-        if newNode not in exploredSet:
+        if newNode not in exploredSet and co_star_id != node.state:
             frontier.add(Node(co_star_id, node, movie_id))
     
-    recursive_search (frontier, target, exploredSet)
+    return recursive_search (frontier, target, exploredSet)
         
             
-
+    #Kevin Bacon
+    #Demi Moore
+    #Luc Besson
+    #Nicole Kidman
 
 def person_id_for_name(name):
     """
